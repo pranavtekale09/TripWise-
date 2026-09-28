@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TripWise – Smart AI Travel Planner & Itinerary Generator</title>
+  <meta name="description" content="Plan less, travel more with TripWise. Create personalized AI trip itineraries, discover top destinations, manage travel budgets, and optimize route schedules.">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased selection:bg-teal-500 selection:text-white">
+
+  <!-- =======================================================
+       1. STICKY NAVIGATION BAR (Step 3 of prompt)
+       ======================================================= -->
+  <nav class="sticky top-0 z-40 glass-nav transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- Logo -->
+      <a href="#hero" class="flex items-center gap-2.5 group">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-teal-500 to-purple-600 p-0.5 shadow-md group-hover:scale-105 transition-transform">
+          <div class="w-full h-full bg-white rounded-[10px] flex items-center justify-center">
+            <i data-lucide="compass" class="w-6 h-6 text-blue-600"></i>
+          </div>
+        </div>
+        <div>
+          <span class="text-2xl font-extrabold tracking-tight font-heading text-slate-900">Trip<span class="text-teal-600">Wise</span></span>
+          <span class="block text-[9px] font-extrabold uppercase tracking-widest text-blue-600 -mt-1">Smart AI Planner</span>
+        </div>
+      </a>
+
+      <!-- Desktop Nav Links -->
+      <div class="hidden md:flex items-center space-x-7 text-xs font-bold text-slate-700">
+        <a href="#hero" class="hover:text-blue-600 transition-colors">Home</a>
+        <a href="#planner-form" class="hover:text-blue-600 transition-colors">Plan Trip</a>
+        <a href="#destinations" class="hover:text-blue-600 transition-colors">Destinations</a>
+        <a href="#itinerary" class="hover:text-blue-600 transition-colors">Itinerary</a>
+        <a href="#budget" class="hover:text-blue-600 transition-colors">Budget</a>
+        <a href="#about" class="hover:text-blue-600 transition-colors">About</a>
+        <a href="#footer" class="hover:text-blue-600 transition-colors">Contact</a>
+      </div>
+
+      <!-- Action CTA, Theme Toggle & Mobile Menu Trigger -->
+      <div class="flex items-center gap-3">
+        <!-- Dark Mode Toggle Button -->
+        <button id="themeToggleBtn" title="Toggle Light/Dark Theme" class="theme-toggle-btn" aria-label="Toggle Theme">
+          <i id="themeToggleIcon" data-lucide="moon" class="w-5 h-5"></i>
+        </button>
+
+        <a href="#planner-form" class="hidden sm:inline-flex px-5 py-2.5 rounded-full glow-btn-primary text-white text-xs font-bold items-center gap-2">
+          <span>Start Planning</span>
+          <i data-lucide="sparkles" class="w-4 h-4"></i>
+        </a>
+        
+        <button id="mobileMenuBtn" class="md:hidden p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200">
+          <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div id="mobileDrawer" class="hidden md:hidden bg-white/95 border-b border-slate-200 px-6 py-4 space-y-3 text-sm font-bold text-slate-800">
+      <a href="#hero" class="block py-1 hover:text-blue-600">Home</a>
+      <a href="#planner-form" class="block py-1 hover:text-blue-600">Plan Trip</a>
+      <a href="#destinations" class="block py-1 hover:text-blue-600">Destinations</a>
+      <a href="#itinerary" class="block py-1 hover:text-blue-600">Itinerary</a>
+      <a href="#budget" class="block py-1 hover:text-blue-600">Budget</a>
+      <a href="#about" class="block py-1 hover:text-blue-600">About</a>
+      <a href="#footer" class="block py-1 hover:text-blue-600">Contact</a>
+      <div class="pt-2 border-t border-slate-200 flex items-center justify-between">
+        <span class="text-xs text-slate-500">Theme Mode</span>
+        <button id="mobileThemeToggleBtn" class="px-3 py-1.5 rounded-xl bg-slate-100 text-xs font-bold flex items-center gap-1.5">
+          <i id="mobileThemeToggleIcon" data-lucide="moon" class="w-4 h-4"></i>
+          <span id="mobileThemeToggleText">Dark Mode</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- =======================================================
+       2. HERO SECTION (Step 4 of prompt)
+       ======================================================= -->
+  <section id="hero" class="relative pt-12 pb-20 md:py-24 overflow-hidden">
+    <!-- Gradient Blobs -->
+    <div class="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-gradient-to-r from-blue-300/30 via-teal-300/20 to-purple-300/30 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        
+        <!-- Left Content -->
+        <div class="lg:col-span-6 space-y-6 text-center lg:text-left">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold">
+            <span class="w-2 h-2 rounded-full bg-teal-500 animate-ping"></span>
+            <span>Next-Gen Travel AI Platform</span>
+          </div>
+
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight font-heading leading-tight">
+            Plan Less. <br>
+            <span class="gradient-text">Travel More.</span>
+          </h1>
+
+          <p class="text-slate-600 text-base sm:text-lg leading-relaxed max-w-xl mx-auto lg:mx-0">
+            Create personalized trips, discover amazing destinations, manage your budget, and build the perfect itinerary with <strong class="text-slate-900">TripWise</strong>.
+          </p>
+
+          <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+            <a href="#planner-form" class="px-7 py-3.5 rounded-full glow-btn-primary text-white font-bold text-sm flex items-center gap-2">
+              <span>Start Planning</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
+            <a href="#destinations" class="px-7 py-3.5 rounded-full bg-white border border-slate-200 text-slate-800 font-bold text-sm hover:bg-slate-50 transition-colors flex items-center gap-2 shadow-sm">
+              <span>Explore Destinations</span>
+              <i data-lucide="compass" class="w-4 h-4 text-teal-600"></i>
+            </a>
+          </div>
+
+          <!-- Trust metrics -->
+          <div class="pt-6 flex items-center justify-center lg:justify-start gap-8 text-xs font-semibold text-slate-500 border-t border-slate-200/60">
+            <div><strong class="text-slate-900 text-base font-extrabold">100k+</strong> Trips Planned</div>
+            <div><strong class="text-slate-900 text-base font-extrabold">4.9★</strong> User Rating</div>
+            <div><strong class="text-slate-900 text-base font-extrabold">50+</strong> Countries</div>
+          </div>
+        </div>
+
+        <!-- Right Hero Imagery Showcase with Floating Cards -->
+        <div class="lg:col-span-6 relative">
+          <div class="relative w-full max-w-lg mx-auto">
+            
+            <!-- Main Hero Image Frame -->
+            <div class="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white aspect-[4/3]">
+              <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1000&q=80" alt="Traveler exploring scenic coastal mountains" class="w-full h-full object-cover">
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
+              
+              <div class="absolute bottom-4 left-4 right-4 text-white">
+                <span class="text-[10px] font-bold uppercase tracking-wider bg-teal-500 text-slate-950 px-2 py-0.5 rounded">Featured Location</span>
+                <h3 class="text-xl font-bold mt-1">Santorini & Coastal Horizons</h3>
+              </div>
+            </div>
+
+            <!-- Floating Card 1: 7 Days Trip -->
+            <div class="absolute -top-5 -left-4 glass-card p-3.5 rounded-2xl shadow-xl flex items-center gap-3 animate-float border border-white/80">
+              <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
+                <i data-lucide="calendar" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase">Duration</span>
+                <h4 class="font-extrabold text-slate-900 text-sm">7 Days Trip</h4>
+              </div>
+            </div>
+
+            <!-- Floating Card 2: ₹25,000 Budget -->
+            <div class="absolute -bottom-6 -left-2 glass-card p-3.5 rounded-2xl shadow-xl flex items-center gap-3 animate-float-delayed border border-white/80">
+              <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                <i data-lucide="wallet" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase">Smart Budget</span>
+                <h4 class="font-extrabold text-slate-900 text-sm">₹25,000 Budget</h4>
+              </div>
+            </div>
+
+            <!-- Floating Card 3: 12 Places -->
+            <div class="absolute top-1/3 -right-6 glass-card p-3.5 rounded-2xl shadow-xl flex items-center gap-3 animate-float border border-white/80">
+              <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center">
+                <i data-lucide="map-pin" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase">Curated</span>
+                <h4 class="font-extrabold text-slate-900 text-sm">12 Top Places</h4>
+              </div>
+            </div>
+
+            <!-- Floating Card 4: Personalized Plan -->
+            <div class="absolute -bottom-5 -right-4 glass-card p-3.5 rounded-2xl shadow-xl flex items-center gap-3 animate-float-delayed border border-white/80">
+              <div class="w-10 h-10 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center">
+                <i data-lucide="sparkles" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase">AI Mode</span>
+                <h4 class="font-extrabold text-slate-900 text-sm">Personalized Plan</h4>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =======================================================
+       3. TRIP PLANNING FLOW DIAGRAM (Step 5 of prompt)
+       ======================================================= -->
+  <section id="flow-diagram-section" class="py-16 bg-white border-y border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-12">
+        <span class="text-xs font-bold uppercase tracking-wider text-blue-600">Simplified Workflow</span>
+        <h2 class="text-3xl font-extrabold text-slate-900 mt-1 font-heading">7-Step Trip Planning Flow</h2>
+        <p class="text-slate-600 text-xs sm:text-sm mt-2">From selecting your dream destination to generating your complete minute-by-minute itinerary.</p>
+      </div>
+
+      <!-- Flow Container -->
+      <div id="flowDiagramContainer" class="flex flex-wrap lg:flex-nowrap gap-6 justify-center items-start"></div>
+    </div>
+  </section>
+
+  <!-- =======================================================
+       4. INTERACTIVE TRIP PLANNER FORM (Step 6 of prompt)
+       ======================================================= -->
+  <section id="planner-form" class="py-20 bg-slate-50 relative">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-xl mx-auto mb-10">
+        <span class="text-xs font-bold uppercase tracking-wider text-teal-600">Interactive AI Tool</span>
+        <h2 class="text-3xl font-extrabold text-slate-900 mt-1 font-heading">Build Your Custom Trip</h2>
+        <p class="text-slate-600 text-xs sm:text-sm mt-2">Fill in your travel preferences and let TripWise AI generate your tailored itinerary.</p>
+      </div>
+
+      <!-- Form Box -->
+      <div class="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/80 shadow-2xl relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-teal-400/20 to-blue-400/0 rounded-bl-full pointer-events-none"></div>
+
+        <form id="tripPlannerForm" class="space-y-8">
+          
+          <!-- Grid Rows -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            <!-- Destination -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <i data-lucide="map-pin" class="w-4 h-4 text-blue-600"></i> Destination
+              </label>
+              <input type="text" id="destInput" placeholder="e.g. Goa, Manali, Paris" value="Goa" required class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+            </div>
+
+            <!-- Starting Location -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <i data-lucide="navigation" class="w-4 h-4 text-teal-600"></i> Starting City
+              </label>
+              <input type="text" id="startLocInput" placeholder="e.g. Pune, Mumbai, Delhi" value="Pune" required class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all">
+            </div>
+
+            <!-- Travel Dates Start -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <i data-lucide="calendar" class="w-4 h-4 text-purple-600"></i> Start Date
+              </label>
+              <input type="date" id="startDate" required class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all">
+            </div>
+
+            <!-- Travel Dates End -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <i data-lucide="calendar" class="w-4 h-4 text-purple-600"></i> End Date
+              </label>
+              <input type="date" id="endDate" required class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all">
+            </div>
+          </div>
+
+          <!-- Travelers & Budget & Style Row -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            <!-- Adults -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <i data-lucide="users" class="w-4 h-4 text-orange-600"></i> Adults
+              </label>
+              <select id="adultsCount" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all">
+                <option value="1">1 Adult</option>
+                <option value="2" selected>2 Adults</option>
+                <option value="3">3 Adults</option>
+                <option value="4+">4+ Adults</option>
+              </select>
+            </div>
+
+            <!-- Children -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <i data-lucide="smile" class="w-4 h-4 text-orange-600"></i> Children
+              </label>
+              <select id="childrenCount" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all">
+                <option value="0" selected>0 Children</option>
+                <option value="1">1 Child</option>
+                <option value="2">2 Children</option>
+              </select>
+            </div>
+
+            <!-- Budget Level -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <i data-lucide="wallet" class="w-4 h-4 text-emerald-600"></i> Budget Tier
+              </label>
+              <select id="budgetTierSelect" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
+                <option value="Low">Low Budget (Backpacker)</option>
+                <option value="Medium" selected>Medium Budget (Balanced)</option>
+                <option value="Premium">Premium (Luxury Stays)</option>
+                <option value="Custom">Custom Budget</option>
+              </select>
+            </div>
+
+            <!-- Travel Style -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <i data-lucide="compass" class="w-4 h-4 text-blue-600"></i> Travel Style
+              </label>
+              <select id="travelStyleSelect" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                <option value="Adventure" selected>Adventure</option>
+                <option value="Relaxation">Relaxation & Spa</option>
+                <option value="Family">Family Friendly</option>
+                <option value="Solo">Solo Explorer</option>
+                <option value="Romantic">Romantic Honeymoon</option>
+                <option value="Luxury">Luxury & Fine Dining</option>
+                <option value="Backpacking">Budget Backpacking</option>
+              </select>
+            </div>
+
+          </div>
+
+          <!-- Interests Pills Checkboxes -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+              <i data-lucide="heart" class="w-4 h-4 text-rose-500"></i> Primary Interests (Select Multiple)
+            </label>
+            <div class="flex flex-wrap gap-2.5">
+              <label class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-all">
+                <input type="checkbox" checked class="rounded text-blue-600 focus:ring-blue-500"> 🌿 Nature
+              </label>
+              <label class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-all">
+                <input type="checkbox" checked class="rounded text-blue-600 focus:ring-blue-500"> 🏖️ Beaches
+              </label>
+              <label class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-all">
+                <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500"> 🏔️ Mountains
+              </label>
+              <label class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-all">
+                <input type="checkbox" checked class="rounded text-blue-600 focus:ring-blue-500"> 🏛️ History
+              </label>
+              <label class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-all">
+                <input type="checkbox" checked class="rounded text-blue-600 focus:ring-blue-500"> 🍲 Local Food
+              </label>
+              <label class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-all">
+                <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500"> 🛍️ Shopping
+              </label>
+              <label class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-all">
+                <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500"> 🎭 Culture
+              </label>
+              <label class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-all">
+                <input type="checkbox" checked class="rounded text-blue-600 focus:ring-blue-500"> 🌙 Nightlife
+              </label>
+            </div>
+          </div>
+
+          <!-- Preferred Transport Mode -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <i data-lucide="plane" class="w-4 h-4 text-indigo-600"></i> Preferred Transport
+            </label>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-bold">
+              <label class="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center gap-2 cursor-pointer hover:border-blue-500 transition-all">
+                <input type="radio" name="transportMode" value="Flight" checked class="text-blue-600"> ✈️ Flight
+              </label>
+              <label class="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center gap-2 cursor-pointer hover:border-blue-500 transition-all">
+                <input type="radio" name="transportMode" value="Train" class="text-blue-600"> 🚆 Train
+              </label>
+              <label class="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center gap-2 cursor-pointer hover:border-blue-500 transition-all">
+                <input type="radio" name="transportMode" value="Bus" class="text-blue-600"> 🚌 Bus
+              </label>
+              <label class="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center gap-2 cursor-pointer hover:border-blue-500 transition-all">
+                <input type="radio" name="transportMode" value="Car" class="text-blue-600"> 🚗 Car / Taxi
+              </label>
+            </div>
+          </div>
+
+          <!-- Large Generate Button -->
+          <div class="pt-4">
+            <button type="submit" class="w-full py-4 rounded-2xl glow-btn-orange text-white font-extrabold text-base sm:text-lg flex items-center justify-center gap-3">
+              <i data-lucide="sparkles" class="w-6 h-6 animate-spin"></i>
+              <span>Generate My AI Trip Plan</span>
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =======================================================
+       5. GENERATED TRIP DASHBOARD SECTION (Step 15 of prompt)
+       ======================================================= -->
+  <section id="trip-dashboard-section" class="py-16 bg-white hidden border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div id="tripDashboardContainer"></div>
+    </div>
+  </section>
+
+  <!-- =======================================================
+       6. AI WORKFLOW DIAGRAM (Step 7 of prompt)
+       ======================================================= -->
+  <section id="workflow-section" class="py-20 bg-slate-900 text-white relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="text-center max-w-2xl mx-auto mb-14">
+        <span class="text-xs font-bold uppercase tracking-wider text-teal-400">Technical Architecture</span>
+        <h2 class="text-3xl font-extrabold text-white mt-1 font-heading">AI Trip Planner Workflow</h2>
+        <p class="text-slate-400 text-xs sm:text-sm mt-2">How our neural travel engine compiles 50,000+ data points into your custom itinerary.</p>
+      </div>
+
+      <div id="aiWorkflowContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+    </div>
+  </section>
+
+  <!-- =======================================================
+       7. DESTINATIONS RECOMMENDATION SECTION (Step 8 of prompt)
+       ======================================================= -->
+  <section id="destinations" class="py-20 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-blue-600">Curated Destinations</span>
+          <h2 class="text-3xl font-extrabold text-slate-900 mt-1 font-heading">Explore Recommended Spots</h2>
+        </div>
+
+        <!-- Filter Pills -->
+        <div id="destinationFilters" class="flex flex-wrap gap-2">
+          <button data-category="All" class="px-4 py-2 rounded-full text-xs font-bold bg-blue-600 text-white shadow-md">All</button>
+          <button data-category="Budget" class="px-4 py-2 rounded-full text-xs font-bold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200">Budget</button>
+          <button data-category="Adventure" class="px-4 py-2 rounded-full text-xs font-bold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200">Adventure</button>
+          <button data-category="Beach" class="px-4 py-2 rounded-full text-xs font-bold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200">Beach</button>
+          <button data-category="Mountains" class="px-4 py-2 rounded-full text-xs font-bold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200">Mountains</button>
+          <button data-category="Family" class="px-4 py-2 rounded-full text-xs font-bold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200">Family</button>
+          <button data-category="International" class="px-4 py-2 rounded-full text-xs font-bold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200">International</button>
+        </div>
+      </div>
+
+      <!-- Destination Grid -->
+      <div id="destinationsGridContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+
+    </div>
+  </section>
+
+  <!-- =======================================================
+       8. TRAVEL ROUTE & DAY-BY-DAY ITINERARY (Steps 9 & 10)
+       ======================================================= -->
+  <section id="itinerary" class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+      
+      <!-- Route Visualizer (Step 9) -->
+      <div>
+        <div id="routeDiagramContainer"></div>
+      </div>
+
+      <!-- Itinerary Timeline (Step 10) -->
+      <div id="itineraryTimelineContainer"></div>
+
+    </div>
+  </section>
+
+  <!-- =======================================================
+       9. BUDGET BREAKDOWN SECTION (Step 11 of prompt)
+       ======================================================= -->
+  <section id="budget" class="py-20 bg-slate-50 border-t border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-xl mx-auto mb-12">
+        <span class="text-xs font-bold uppercase tracking-wider text-teal-600">Financial Visualizer</span>
+        <h2 class="text-3xl font-extrabold text-slate-900 mt-1 font-heading">Interactive Budget Breakdown</h2>
+        <p class="text-slate-600 text-xs sm:text-sm mt-2">Adjust expense categories and recalculate estimated spending in real-time.</p>
+      </div>
+
+      <div class="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/80 shadow-xl grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+        
+        <!-- Left: Donut Chart -->
+        <div class="lg:col-span-5 flex flex-col items-center">
+          <div class="relative w-64 h-64 sm:w-72 sm:h-72">
+            <canvas id="budgetChartCanvas"></canvas>
+            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span class="text-[10px] font-bold uppercase text-slate-400">Total Budget</span>
+              <span id="displayTotalBudget" class="text-2xl font-extrabold text-slate-900">₹25,000</span>
+            </div>
+          </div>
+
+          <!-- Total Metrics Row -->
+          <div class="grid grid-cols-2 gap-4 w-full mt-6 text-center">
+            <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200">
+              <span class="text-[10px] font-bold uppercase text-slate-400 block">Est. Spent</span>
+              <span id="displayTotalSpent" class="text-xl font-bold text-slate-900">₹22,500</span>
+            </div>
+            <div class="p-3 rounded-2xl bg-teal-50 border border-teal-200">
+              <span class="text-[10px] font-bold uppercase text-teal-600 block">Buffer Left</span>
+              <span id="displayRemainingBudget" class="text-xl font-bold text-teal-600">₹2,500</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Category Sliders & Controls -->
+        <div class="lg:col-span-7 space-y-6">
+          
+          <!-- Total Budget Setting Input -->
+          <div class="p-4 rounded-2xl bg-blue-50/70 border border-blue-100 flex items-center justify-between">
+            <div>
+              <h4 class="font-bold text-slate-900 text-sm">Set Total Budget Amount</h4>
+              <p class="text-xs text-slate-500">Enter total available funds for trip</p>
+            </div>
+            <div class="flex items-center gap-1 bg-white px-3 py-1.5 rounded-xl border border-blue-200 shadow-sm">
+              <span class="text-xs font-bold text-slate-400">₹</span>
+              <input type="number" id="inputTotalBudget" value="25000" step="1000" class="w-24 text-right font-extrabold text-slate-900 text-sm focus:outline-none">
+            </div>
+          </div>
+
+          <!-- Sliders Grid -->
+          <div class="space-y-4">
+            
+            <!-- Transport 35% -->
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span class="text-blue-600">🚗 Transport (35%)</span>
+                <span id="val-transport" class="text-slate-900">₹8,750</span>
+              </div>
+              <input type="range" id="slider-transport" min="10" max="60" value="35" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+            </div>
+
+            <!-- Hotel Stay 25% -->
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span class="text-teal-600">🏨 Hotel Stays (25%)</span>
+                <span id="val-hotel" class="text-slate-900">₹6,250</span>
+              </div>
+              <input type="range" id="slider-hotel" min="10" max="60" value="25" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600">
+            </div>
+
+            <!-- Food 15% -->
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span class="text-orange-600">🍔 Food & Dining (15%)</span>
+                <span id="val-food" class="text-slate-900">₹3,750</span>
+              </div>
+              <input type="range" id="slider-food" min="5" max="40" value="15" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-orange-600">
+            </div>
+
+            <!-- Activities 15% -->
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span class="text-purple-600">🎟️ Activities & Sightseeing (15%)</span>
+                <span id="val-activities" class="text-slate-900">₹3,750</span>
+              </div>
+              <input type="range" id="slider-activities" min="5" max="40" value="15" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600">
+            </div>
+
+            <!-- Emergency 10% -->
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span class="text-slate-600">🛡️ Emergency Buffer (10%)</span>
+                <span id="val-emergency" class="text-slate-900">₹2,500</span>
+              </div>
+              <input type="range" id="slider-emergency" min="5" max="30" value="10" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-600">
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =======================================================
+       10. USER JOURNEY DIAGRAM (Step 12 of prompt)
+       ======================================================= -->
+  <section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-xl mx-auto mb-12">
+        <span class="text-xs font-bold uppercase tracking-wider text-purple-600">Seamless Travel Experience</span>
+        <h2 class="text-3xl font-extrabold text-slate-900 mt-1 font-heading">User Journey Roadmap</h2>
+        <p class="text-slate-600 text-xs sm:text-sm mt-2">Every step optimized for simplicity, speed, and unforgettable moments.</p>
+      </div>
+
+      <div id="userJourneyContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4"></div>
+    </div>
+  </section>
+
+  <!-- =======================================================
+       11. SYSTEM ARCHITECTURE DIAGRAM (Step 13 of prompt)
+       ======================================================= -->
+  <section id="architecture-section" class="py-20 bg-slate-950 text-white relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-xl mx-auto mb-12">
+        <span class="text-xs font-bold uppercase tracking-wider text-blue-400">Presentation Module</span>
+        <h2 class="text-3xl font-extrabold text-white mt-1 font-heading">System Architecture Diagram</h2>
+        <p class="text-slate-400 text-xs sm:text-sm mt-2">High-level engineering flow diagram designed for college project presentations.</p>
+      </div>
+
+      <div id="systemArchitectureContainer"></div>
+    </div>
+  </section>
+
+  <!-- =======================================================
+       12. FEATURES & WEATHER & RECOMMENDATIONS (Steps 14, 16, 17)
+       ======================================================= -->
+  <section class="py-20 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+      
+      <!-- Features Grid -->
+      <div>
+        <div class="text-center max-w-xl mx-auto mb-12">
+          <span class="text-xs font-bold uppercase tracking-wider text-blue-600">Platform Superpowers</span>
+          <h2 class="text-3xl font-extrabold text-slate-900 mt-1 font-heading">Key Product Features</h2>
+        </div>
+        <div id="featuresGridContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      </div>
+
+      <!-- Weather & Smart AI Recommendations Row -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Weather Card (Step 16) -->
+        <div class="lg:col-span-5" id="weatherWidgetContainer"></div>
+
+        <!-- Smart AI Recommendations (Step 17) -->
+        <div class="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-md space-y-6">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div>
+              <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">AI Travel Insights</span>
+              <h3 class="text-xl font-extrabold text-slate-900">Smart Trip Recommendations</h3>
+            </div>
+            <div class="w-9 h-9 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center">
+              <i data-lucide="lightbulb" class="w-5 h-5"></i>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+              <h4 class="font-bold text-slate-900 mb-1">🗓️ Best Time to Visit</h4>
+              <p class="text-slate-600">November to February offers ideal pleasant weather and coastal breeze.</p>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+              <h4 class="font-bold text-slate-900 mb-1">🏨 Recommended Hotel Area</h4>
+              <p class="text-slate-600">North Goa near Baga/Candolim for nightlife; South Goa for serene luxury.</p>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+              <h4 class="font-bold text-slate-900 mb-1">⭐ Must-Visit Attractions</h4>
+              <p class="text-slate-600">Dudhsagar Waterfalls, Fort Aguada Lighthouse & Old Goa Latin Quarters.</p>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+              <h4 class="font-bold text-slate-900 mb-1">🍲 Local Food to Try</h4>
+              <p class="text-slate-600">Authentic Goan Fish Curry with rice, Bebinca cake, and Prawn Balchão.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =======================================================
+       13. ABOUT SECTION (Step 18 of prompt)
+       ======================================================= -->
+  <section id="about" class="py-20 bg-white border-t border-slate-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-teal-500 p-0.5 shadow-xl mx-auto">
+        <div class="w-full h-full bg-white rounded-[14px] flex items-center justify-center text-blue-600">
+          <i data-lucide="compass" class="w-8 h-8"></i>
+        </div>
+      </div>
+
+      <span class="text-xs font-bold uppercase tracking-wider text-blue-600 block">About The Project</span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 font-heading">Reinventing Travel Planning with AI</h2>
+      
+      <p class="text-slate-600 text-sm sm:text-base leading-relaxed max-w-3xl mx-auto">
+        <strong>TripWise</strong> is an intelligent travel planning platform designed to simplify the process of discovering destinations, organizing travel, managing budgets, and creating personalized day-by-day itineraries. Built as a state-of-the-art college demonstration product, it bridges advanced user preferences with real-time algorithmic schedule optimization.
+      </p>
+
+      <div class="pt-4 flex flex-wrap justify-center gap-8 text-xs font-extrabold text-slate-700">
+        <div class="flex items-center gap-2">✓ <span>Algorithmic Route Mapping</span></div>
+        <div class="flex items-center gap-2">✓ <span>Dynamic Budget Donut Split</span></div>
+        <div class="flex items-center gap-2">✓ <span>Printable PDF Itinerary Export</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =======================================================
+       14. FOOTER (Step 19 of prompt)
+       ======================================================= -->
+  <footer id="footer" class="bg-slate-950 text-slate-400 py-16 border-t border-slate-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        
+        <!-- Brand Info -->
+        <div class="space-y-4">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
+              <i data-lucide="compass" class="w-5 h-5"></i>
+            </div>
+            <span class="text-xl font-extrabold text-white font-heading">Trip<span class="text-teal-400">Wise</span></span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Smart AI Travel Planner generating personalized daily itineraries, budget splits, and optimized route maps.
+          </p>
+        </div>
+
+        <!-- Quick Links -->
+        <div>
+          <h4 class="text-white font-bold text-sm mb-4">Quick Links</h4>
+          <ul class="space-y-2 text-xs">
+            <li><a href="#hero" class="hover:text-white transition-colors">Home</a></li>
+            <li><a href="#planner-form" class="hover:text-white transition-colors">Plan My Trip</a></li>
+            <li><a href="#destinations" class="hover:text-white transition-colors">Top Destinations</a></li>
+            <li><a href="#itinerary" class="hover:text-white transition-colors">Itinerary Schedule</a></li>
+            <li><a href="#budget" class="hover:text-white transition-colors">Budget Calculator</a></li>
+          </ul>
+        </div>
+
+        <!-- Project Demo -->
+        <div>
+          <h4 class="text-white font-bold text-sm mb-4">College Presentation</h4>
+          <ul class="space-y-2 text-xs">
+            <li><a href="#architecture-section" class="hover:text-teal-400 transition-colors">System Architecture</a></li>
+            <li><a href="#workflow-section" class="hover:text-teal-400 transition-colors">AI Workflow Diagram</a></li>
+            <li><a href="#flow-diagram-section" class="hover:text-teal-400 transition-colors">7-Step Flow Diagram</a></li>
+            <li><a href="#about" class="hover:text-teal-400 transition-colors">About Project</a></li>
+          </ul>
+        </div>
+
+        <!-- Social & Contact -->
+        <div>
+          <h4 class="text-white font-bold text-sm mb-4">Connect & Social</h4>
+          <div class="flex items-center gap-3 mb-4">
+            <a href="#" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-colors">
+              <i data-lucide="github" class="w-4 h-4"></i>
+            </a>
+            <a href="#" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-colors">
+              <i data-lucide="twitter" class="w-4 h-4"></i>
+            </a>
+            <a href="#" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-colors">
+              <i data-lucide="instagram" class="w-4 h-4"></i>
+            </a>
+            <a href="#" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-colors">
+              <i data-lucide="linkedin" class="w-4 h-4"></i>
+            </a>
+          </div>
+          <span class="text-xs text-slate-500">Contact: support@tripwise.ai</span>
+        </div>
+
+      </div>
+
+      <div class="pt-8 border-t border-slate-900 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <span>© 2026 TripWise – Smart Travel Planner. All rights reserved.</span>
+        <div class="flex gap-4">
+          <a href="#" class="hover:text-slate-400">Privacy Policy</a>
+          <a href="#" class="hover:text-slate-400">Terms of Service</a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- =======================================================
+       15. MODALS & OVERLAYS
+       ======================================================= -->
+  <!-- Destination Details Popup Modal Container -->
+  <div id="destinationModalContainer" class="hidden"></div>
+
+  <!-- AI Generator Progress Modal -->
+  <div id="aiLoadingModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md modal-backdrop">
+    <div class="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl modal-content space-y-6">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-teal-400 p-0.5 shadow-xl mx-auto animate-bounce">
+        <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-teal-400">
+          <i data-lucide="cpu" class="w-8 h-8 animate-pulse"></i>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-2xl font-extrabold text-slate-900">TripWise AI is Planning...</h3>
+        <p id="aiLoadingStepText" class="text-xs text-slate-500 mt-1 font-medium">Analyzing preferences & weather models...</p>
+      </div>
+
+      <!-- Shimmer Progress Bar -->
+      <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200">
+        <div id="aiLoadingProgressBar" class="h-full bg-gradient-to-r from-blue-600 via-teal-500 to-purple-600 rounded-full transition-all duration-300 w-0"></div>
+      </div>
+
+      <p class="text-[10px] text-slate-400 uppercase font-bold">Connecting Maps, Stays & Weather Data</p>
+    </div>
+  </div>
+
+  <!-- Custom JS Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
