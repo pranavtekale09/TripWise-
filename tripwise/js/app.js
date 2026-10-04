@@ -280,6 +280,29 @@ function renderFeaturesGrid() {
 /* =======================================================
    6. DESTINATIONS CARDS & FILTERS (Step 8 of prompt)
    ======================================================= */
+const INR_FORMATTER = new Intl.NumberFormat('en-IN', {
+  style: 'currency',
+  currency: 'INR',
+  maximumFractionDigits: 0
+});
+
+function formatFareEstimate(estimate, travelerCount = 1) {
+  const multiplier = estimate.perVehicle ? 1 : travelerCount;
+  const minFare = INR_FORMATTER.format(estimate.minFare * multiplier);
+  const maxFare = INR_FORMATTER.format(estimate.maxFare * multiplier);
+  return `${minFare}–${maxFare}`;
+}
+
+function getTravelEstimate(destination, requestedMode = 'Flight') {
+  const estimates = destination.travelEstimates || {};
+  const mode = estimates[requestedMode] ? requestedMode : Object.keys(estimates)[0];
+  return { mode, ...estimates[mode] };
+}
+
+function getSelectedTransportMode() {
+  return document.querySelector('input[name="transportMode"]:checked')?.value || 'Flight';
+}
+
 function renderDestinations(filterCategory = 'All') {
   const container = document.getElementById('destinationsGridContainer');
   if (!container) return;
@@ -288,7 +311,9 @@ function renderDestinations(filterCategory = 'All') {
     ? DESTINATIONS
     : DESTINATIONS.filter(d => d.category.includes(filterCategory));
 
-  container.innerHTML = filtered.map(item => `
+  container.innerHTML = filtered.map(item => {
+    const travel = getTravelEstimate(item, getSelectedTransportMode());
+    return `
     <div class="bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group">
       <!-- Image Header -->
       <div class="relative h-48 overflow-hidden">
@@ -333,13 +358,20 @@ function renderDestinations(filterCategory = 'All') {
           </div>
         </div>
 
+        <div class="rounded-xl bg-teal-50/70 border border-teal-100 px-3 py-2.5">
+          <span class="text-teal-700 block text-[10px] uppercase font-bold">${travel.mode} from Pune · return estimate</span>
+          <span class="font-bold text-slate-900">${formatFareEstimate(travel)}${travel.perVehicle ? ' / vehicle' : ' / person'}</span>
+          <span class="text-slate-500 text-[11px]">${travel.duration} one way · indicative, not live</span>
+        </div>
+
         <button onclick="openDestinationModal('${item.id}')" class="w-full py-2.5 rounded-xl bg-slate-100 text-slate-800 font-bold text-xs hover:bg-blue-600 hover:text-white transition-colors flex items-center justify-center gap-1.5">
           <span>View Details & Plan</span>
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </button>
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 
   if (window.lucide) lucide.createIcons();
 }
@@ -350,6 +382,7 @@ function openDestinationModal(destId) {
 
   const modalContainer = document.getElementById('destinationModalContainer');
   if (!modalContainer) return;
+  const selectedMode = getSelectedTransportMode();
 
   modalContainer.innerHTML = `
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm modal-backdrop">
@@ -377,6 +410,22 @@ function openDestinationModal(destId) {
         <!-- Body Scrollable -->
         <div class="p-6 space-y-5 overflow-y-auto flex-grow text-xs md:text-sm text-slate-700">
           <p class="text-slate-600 leading-relaxed text-sm">${dest.description}</p>
+
+          <div class="p-4 bg-teal-50/70 rounded-2xl border border-teal-100">
+            <h4 class="font-bold text-slate-900 mb-1 flex items-center gap-1.5">
+              <i data-lucide="navigation" class="w-4 h-4 text-teal-600"></i> Travel estimates from Pune
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+              ${Object.entries(dest.travelEstimates).map(([mode, estimate]) => `
+                <div class="p-3 rounded-xl border ${mode === selectedMode ? 'border-teal-400 bg-white' : 'border-slate-200 bg-white/70'}">
+                  <span class="font-bold text-slate-800">${mode}</span>
+                  <span class="block text-sm font-bold text-teal-700">${formatFareEstimate(estimate)}${estimate.perVehicle ? ' / vehicle' : ' / person'}</span>
+                  <span class="text-[11px] text-slate-500">${estimate.duration} one way · ${estimate.distanceKm.toLocaleString('en-IN')} km</span>
+                </div>
+              `).join('')}
+            </div>
+            <p class="text-[11px] text-slate-500 mt-2">Typical return fares; travel time and distance are one way. Prices vary by date and availability and are not live quotes.</p>
+          </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="p-4 bg-blue-50/70 rounded-2xl border border-blue-100">
@@ -640,6 +689,10 @@ function setupEventListeners() {
     });
   }
 
+  document.querySelectorAll('input[name="transportMode"]').forEach(input => {
+    input.addEventListener('change', () => renderDestinations(activeDestinationFilter));
+  });
+
   // Category filter buttons
   const filterContainer = document.getElementById('destinationFilters');
   if (filterContainer) {
@@ -687,7 +740,9 @@ function handleGenerateTrip() {
   const children = document.getElementById('childrenCount')?.value || 0;
   const budgetTier = document.getElementById('budgetTierSelect')?.value || 'Medium';
   const travelStyle = document.getElementById('travelStyleSelect')?.value || 'Adventure';
-  const transportMode = document.getElementById('transportSelect')?.value || 'Flight';
+  // Get selected transport radio (fix: there is no element with id "transportSelect")
+  const transportRadio = document.querySelector('input[name="transportMode"]:checked');
+  const transportMode = transportRadio ? transportRadio.value : 'Flight';
 
   // Open Loading Modal
   const modal = document.getElementById('aiLoadingModal');
@@ -721,6 +776,8 @@ function handleGenerateTrip() {
           startDate: startDate,
           endDate: endDate,
           travelers: `${adults} Adults, ${children} Children`,
+          adultCount: Number(adults),
+          childCount: Number(children),
           budgetTier: budgetTier,
           travelStyle: travelStyle,
           transportMode: transportMode
@@ -740,6 +797,18 @@ function displayGeneratedTripDashboard(userInputs) {
   // Check if matching destination data exists
   const destMatch = DESTINATIONS.find(d => d.name.toLowerCase() === userInputs.destination.toLowerCase()) || DESTINATIONS[0];
   const itinerary = SAMPLE_ITINERARIES[destMatch.id] || SAMPLE_ITINERARIES.goa;
+  const travel = getTravelEstimate(destMatch, userInputs.transportMode);
+  const travelerCount = Math.max(1, Number(userInputs.adultCount || 0) + Number(userInputs.childCount || 0));
+  const totalBudget = destMatch.budgetValue * travelerCount;
+  const budgetBreakdown = [
+    { label: 'Transport', percent: 35 },
+    { label: 'Hotel stays', percent: 25 },
+    { label: 'Food & dining', percent: 15 },
+    { label: 'Activities', percent: 15 },
+    { label: 'Emergency buffer', percent: 10 }
+  ];
+  const hotelNights = Number(destMatch.duration.match(/(\d+)\s*Nights/i)?.[1] || 0);
+  const activityCount = itinerary.days.reduce((sum, day) => sum + day.activities.length, 0);
 
   currentActiveTrip = {
     inputs: userInputs,
@@ -782,23 +851,23 @@ function displayGeneratedTripDashboard(userInputs) {
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div class="p-4 rounded-2xl bg-blue-50/80 border border-blue-100">
           <span class="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">Est. Distance</span>
-          <span class="text-xl font-extrabold text-blue-900">540 km</span>
-          <span class="text-[11px] text-blue-600 block mt-0.5">Via ${userInputs.transportMode}</span>
+          <span class="text-xl font-extrabold text-blue-900">${travel.distanceKm.toLocaleString('en-IN')} km</span>
+          <span class="text-[11px] text-blue-600 block mt-0.5">Pune route reference · ${travel.mode}</span>
         </div>
         <div class="p-4 rounded-2xl bg-teal-50/80 border border-teal-100">
           <span class="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">Travel Time</span>
-          <span class="text-xl font-extrabold text-teal-900">1h 15m</span>
-          <span class="text-[11px] text-teal-600 block mt-0.5">Non-stop Transit</span>
+          <span class="text-xl font-extrabold text-teal-900">${travel.duration}</span>
+          <span class="text-[11px] text-teal-600 block mt-0.5">One way · ${travel.mode}</span>
         </div>
         <div class="p-4 rounded-2xl bg-purple-50/80 border border-purple-100">
-          <span class="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">Total Activities</span>
-          <span class="text-xl font-extrabold text-purple-900">14 Places</span>
-          <span class="text-[11px] text-purple-600 block mt-0.5">Curated Experiences</span>
+          <span class="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">Return Travel Estimate</span>
+          <span class="text-xl font-extrabold text-purple-900">${formatFareEstimate(travel, travelerCount)}</span>
+          <span class="text-[11px] text-purple-600 block mt-0.5">${travel.perVehicle ? 'Per vehicle' : `For ${travelerCount} traveler${travelerCount === 1 ? '' : 's'}`} · indicative</span>
         </div>
         <div class="p-4 rounded-2xl bg-amber-50/80 border border-amber-100">
           <span class="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">Hotel Nights</span>
-          <span class="text-xl font-extrabold text-amber-900">3 Nights</span>
-          <span class="text-[11px] text-amber-600 block mt-0.5">4-Star Beach Resort</span>
+          <span class="text-xl font-extrabold text-amber-900">${hotelNights} Nights</span>
+          <span class="text-[11px] text-amber-600 block mt-0.5">${activityCount} listed activities</span>
         </div>
       </div>
 
@@ -855,11 +924,11 @@ function displayGeneratedTripDashboard(userInputs) {
               <i data-lucide="wallet" class="w-4 h-4 text-teal-600"></i> Estimated Budget Split
             </h4>
             <div class="space-y-2 text-xs">
-              <div class="flex justify-between"><span>Transport (35%)</span><span class="font-bold text-slate-900">₹8,750</span></div>
-              <div class="flex justify-between"><span>Hotel Stays (25%)</span><span class="font-bold text-slate-900">₹6,250</span></div>
-              <div class="flex justify-between"><span>Food & Dining (15%)</span><span class="font-bold text-slate-900">₹3,750</span></div>
-              <div class="flex justify-between"><span>Activities (15%)</span><span class="font-bold text-slate-900">₹3,750</span></div>
-              <div class="flex justify-between border-t pt-2 font-bold text-slate-900"><span>Total Cost</span><span class="text-teal-600 text-sm">₹22,500</span></div>
+              ${budgetBreakdown.map(item => `
+                <div class="flex justify-between"><span>${item.label} (${item.percent}%)</span><span class="font-bold text-slate-900">${INR_FORMATTER.format(Math.round(totalBudget * item.percent / 100))}</span></div>
+              `).join('')}
+              <div class="flex justify-between border-t pt-2 font-bold text-slate-900"><span>Estimated Trip Budget</span><span class="text-teal-600 text-sm">${INR_FORMATTER.format(totalBudget)}</span></div>
+              <p class="text-[10px] text-slate-500">Destination estimate × ${travelerCount} traveler${travelerCount === 1 ? '' : 's'}; fares are indicative.</p>
             </div>
           </div>
         </div>

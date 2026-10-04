@@ -108,6 +108,9 @@ function updateBudgetTotalsDisplay() {
   const totalSpent = transportAmt + hotelAmt + foodAmt + activitiesAmt;
   const remaining = currentTotalBudget - totalSpent;
 
+  // Ensure remaining includes emergency allocation
+  const remainingWithEmergency = remaining - emergencyAmt;
+
   // Update DOM elements if present
   const totalBudgetEl = document.getElementById('displayTotalBudget');
   const totalSpentEl = document.getElementById('displayTotalSpent');
@@ -116,9 +119,10 @@ function updateBudgetTotalsDisplay() {
   if (totalBudgetEl) totalBudgetEl.innerText = `₹${currentTotalBudget.toLocaleString('en-IN')}`;
   if (totalSpentEl) totalSpentEl.innerText = `₹${totalSpent.toLocaleString('en-IN')}`;
   if (remainingBudgetEl) {
-    remainingBudgetEl.innerText = `₹${remaining.toLocaleString('en-IN')}`;
-    remainingBudgetEl.className = remaining >= 0 
-      ? 'text-xl font-bold text-teal-600' 
+    const displayRemaining = remainingWithEmergency;
+    remainingBudgetEl.innerText = `₹${displayRemaining.toLocaleString('en-IN')}`;
+    remainingBudgetEl.className = displayRemaining >= 0
+      ? 'text-xl font-bold text-teal-600'
       : 'text-xl font-bold text-rose-600';
   }
 
@@ -126,10 +130,8 @@ function updateBudgetTotalsDisplay() {
   const categories = ['transport', 'hotel', 'food', 'activities', 'emergency'];
   categories.forEach(cat => {
     const valEl = document.getElementById(`val-${cat}`);
-    const pctEl = document.getElementById(`pct-${cat}`);
     const amt = Math.round((currentTotalBudget * categoryPercentages[cat]) / 100);
     
     if (valEl) valEl.innerText = `₹${amt.toLocaleString('en-IN')}`;
-    if (pctEl) pctEl.innerText = `${categoryPercentages[cat]}%`;
   });
 }

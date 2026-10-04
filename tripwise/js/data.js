@@ -12,6 +12,12 @@ const DESTINATIONS = [
     reviews: 1240,
     budget: "₹18,000",
     budgetValue: 18000,
+    travelEstimates: {
+      Flight: { minFare: 5500, maxFare: 12000, duration: "1h 15m", distanceKm: 420 },
+      Train: { minFare: 1200, maxFare: 3000, duration: "10h", distanceKm: 590 },
+      Bus: { minFare: 1500, maxFare: 3500, duration: "10h", distanceKm: 450 },
+      Car: { minFare: 8000, maxFare: 13000, duration: "9h", distanceKm: 450, perVehicle: true }
+    },
     duration: "4 Days / 3 Nights",
     bestTime: "Nov - Feb",
     description: "Sun-kissed beaches, vibrant nightlife, Portuguese heritage, and seafood delicacies make Goa the ultimate tropical getaway.",
@@ -31,6 +37,12 @@ const DESTINATIONS = [
     reviews: 980,
     budget: "₹22,000",
     budgetValue: 22000,
+    travelEstimates: {
+      Flight: { minFare: 10000, maxFare: 22000, duration: "6h 30m", distanceKm: 1500 },
+      Train: { minFare: 2200, maxFare: 5500, duration: "30h", distanceKm: 1900 },
+      Bus: { minFare: 3500, maxFare: 7500, duration: "32h", distanceKm: 1900 },
+      Car: { minFare: 30000, maxFare: 50000, duration: "30h", distanceKm: 1900, perVehicle: true }
+    },
     duration: "5 Days / 4 Nights",
     bestTime: "Oct - June",
     description: "Snow-capped Himalayan peaks, pine forests, Solang valley adventures, and cozy mountain cafes await in Manali.",
@@ -50,6 +62,12 @@ const DESTINATIONS = [
     reviews: 1450,
     budget: "₹15,000",
     budgetValue: 15000,
+    travelEstimates: {
+      Flight: { minFare: 5000, maxFare: 12000, duration: "2h", distanceKm: 1000 },
+      Train: { minFare: 1500, maxFare: 4000, duration: "22h", distanceKm: 1350 },
+      Bus: { minFare: 2200, maxFare: 5000, duration: "20h", distanceKm: 1200 },
+      Car: { minFare: 18000, maxFare: 30000, duration: "18h", distanceKm: 1200, perVehicle: true }
+    },
     duration: "3 Days / 2 Nights",
     bestTime: "Oct - March",
     description: "Immerse yourself in royal heritage, grand palaces, bustling bazaars, and opulent Rajasthani architecture.",
@@ -69,6 +87,12 @@ const DESTINATIONS = [
     reviews: 1620,
     budget: "₹28,000",
     budgetValue: 28000,
+    travelEstimates: {
+      Flight: { minFare: 7000, maxFare: 16000, duration: "2h 20m", distanceKm: 1000 },
+      Train: { minFare: 1800, maxFare: 5000, duration: "24h", distanceKm: 1400 },
+      Bus: { minFare: 2500, maxFare: 6000, duration: "22h", distanceKm: 1250 },
+      Car: { minFare: 18000, maxFare: 32000, duration: "21h", distanceKm: 1250, perVehicle: true }
+    },
     duration: "6 Days / 5 Nights",
     bestTime: "Sep - March",
     description: "Tranquil backwaters, Alleppey houseboats, Munnar tea estates, and lush Ayurvedic wellness retreats.",
@@ -88,6 +112,9 @@ const DESTINATIONS = [
     reviews: 2100,
     budget: "₹75,000",
     budgetValue: 75000,
+    travelEstimates: {
+      Flight: { minFare: 16000, maxFare: 32000, duration: "4h 30m", distanceKm: 2500 }
+    },
     duration: "5 Days / 4 Nights",
     bestTime: "Nov - April",
     description: "Futuristic skyscrapers, desert safaris, luxury shopping malls, and world-record attractions.",
@@ -107,6 +134,9 @@ const DESTINATIONS = [
     reviews: 1890,
     budget: "₹65,000",
     budgetValue: 65000,
+    travelEstimates: {
+      Flight: { minFare: 28000, maxFare: 48000, duration: "10h", distanceKm: 5800 }
+    },
     duration: "6 Days / 5 Nights",
     bestTime: "April - Oct",
     description: "Sacred water temples, emerald rice terraces, surf beaches, cliffside clubs, and tropical villas.",
@@ -126,6 +156,9 @@ const DESTINATIONS = [
     reviews: 3100,
     budget: "₹1,20,000",
     budgetValue: 120000,
+    travelEstimates: {
+      Flight: { minFare: 45000, maxFare: 78000, duration: "13h", distanceKm: 7200 }
+    },
     duration: "6 Days / 5 Nights",
     bestTime: "April - Oct",
     description: "Iconic Eiffel Tower, world-class art galleries, chic fashion boulevards, and gourmet patisseries.",
@@ -145,6 +178,9 @@ const DESTINATIONS = [
     reviews: 2400,
     budget: "₹1,35,000",
     budgetValue: 135000,
+    travelEstimates: {
+      Flight: { minFare: 38000, maxFare: 70000, duration: "12h", distanceKm: 6600 }
+    },
     duration: "7 Days / 6 Nights",
     bestTime: "March - May & Oct - Nov",
     description: "Neon lit skyscrapers, tranquil Shinto shrines, bullet trains, anime culture, and legendary culinary art.",
