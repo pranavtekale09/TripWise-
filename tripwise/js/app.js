@@ -411,20 +411,20 @@ function openDestinationModal(destId) {
         <div class="p-6 space-y-5 overflow-y-auto flex-grow text-xs md:text-sm text-slate-700">
           <p class="text-slate-600 leading-relaxed text-sm">${dest.description}</p>
 
-          <div class="p-4 bg-teal-50/70 rounded-2xl border border-teal-100">
-            <h4 class="font-bold text-slate-900 mb-1 flex items-center gap-1.5">
-              <i data-lucide="navigation" class="w-4 h-4 text-teal-600"></i> Travel estimates from Pune
+          <div class="travel-estimate-panel p-4 bg-teal-50/70 rounded-2xl border border-teal-100">
+            <h4 class="travel-estimate-heading font-bold text-slate-900 mb-1 flex items-center gap-1.5">
+              <i data-lucide="navigation" class="travel-estimate-icon w-4 h-4 text-teal-600"></i> Travel estimates from Pune
             </h4>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
               ${Object.entries(dest.travelEstimates).map(([mode, estimate]) => `
-                <div class="p-3 rounded-xl border ${mode === selectedMode ? 'border-teal-400 bg-white' : 'border-slate-200 bg-white/70'}">
-                  <span class="font-bold text-slate-800">${mode}</span>
-                  <span class="block text-sm font-bold text-teal-700">${formatFareEstimate(estimate)}${estimate.perVehicle ? ' / vehicle' : ' / person'}</span>
-                  <span class="text-[11px] text-slate-500">${estimate.duration} one way · ${estimate.distanceKm.toLocaleString('en-IN')} km</span>
+                <div class="travel-estimate-card p-3 rounded-xl border ${mode === selectedMode ? 'is-selected border-teal-400 bg-white' : 'border-slate-200 bg-white/70'}">
+                  <span class="travel-estimate-mode font-bold text-slate-800">${mode}</span>
+                  <span class="travel-estimate-fare block text-sm font-bold text-teal-700">${formatFareEstimate(estimate)}${estimate.perVehicle ? ' / vehicle' : ' / person'}</span>
+                  <span class="travel-estimate-meta text-[11px] text-slate-500">${estimate.duration} one way · ${estimate.distanceKm.toLocaleString('en-IN')} km</span>
                 </div>
               `).join('')}
             </div>
-            <p class="text-[11px] text-slate-500 mt-2">Typical return fares; travel time and distance are one way. Prices vary by date and availability and are not live quotes.</p>
+            <p class="travel-estimate-note text-[11px] text-slate-500 mt-2">Typical return fares; travel time and distance are one way. Prices vary by date and availability and are not live quotes.</p>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

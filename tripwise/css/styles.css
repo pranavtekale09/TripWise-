@@ -108,6 +108,36 @@ html.dark .bg-slate-100 {
   color: #f1f5f9 !important;
 }
 
+html.dark .travel-estimate-panel {
+  background-color: #102b2b !important;
+  border-color: rgba(45, 212, 191, 0.35) !important;
+}
+
+html.dark .travel-estimate-heading,
+html.dark .travel-estimate-mode {
+  color: #f8fafc !important;
+}
+
+html.dark .travel-estimate-icon,
+html.dark .travel-estimate-fare {
+  color: #5eead4 !important;
+}
+
+html.dark .travel-estimate-card {
+  background-color: #17232f !important;
+  border-color: rgba(148, 163, 184, 0.3) !important;
+}
+
+html.dark .travel-estimate-card.is-selected {
+  background-color: #123634 !important;
+  border-color: #2dd4bf !important;
+}
+
+html.dark .travel-estimate-meta,
+html.dark .travel-estimate-note {
+  color: #cbd5e1 !important;
+}
+
 /* Gradient Text & Badges */
 .gradient-text {
   background: linear-gradient(135deg, #3b82f6 0%, #14b8a6 50%, #a855f7 100%);
