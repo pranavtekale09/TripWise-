@@ -660,6 +660,8 @@ function renderWeatherWidget(weather, forecast) {
    10. TRIP PLANNER FORM & AI GENERATOR (Step 6 of prompt)
    ======================================================= */
 function setupEventListeners() {
+  setupDestinationAutocomplete();
+
   // Theme Toggle Buttons
   const themeToggleBtn = document.getElementById('themeToggleBtn');
   if (themeToggleBtn) {
@@ -729,6 +731,136 @@ function setupEventListeners() {
       setTotalBudgetAmount(e.target.value);
     });
   }
+}
+
+function setupDestinationAutocomplete() {
+  const input = document.getElementById('destInput');
+  if (!input || !input.parentElement) return;
+
+  const list = document.createElement('div');
+  list.id = 'destinationSuggestions';
+  list.className = 'hidden absolute left-0 right-0 top-full z-30 mt-1 max-h-64 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1 shadow-xl';
+  list.setAttribute('role', 'listbox');
+  input.parentElement.classList.add('relative');
+  input.insertAdjacentElement('afterend', list);
+  input.setAttribute('aria-autocomplete', 'list');
+  input.setAttribute('aria-controls', list.id);
+  input.setAttribute('aria-expanded', 'false');
+
+  let debounceTimer;
+  let requestController;
+  let places = [];
+  let activeIndex = -1;
+
+  const closeList = () => {
+    list.classList.add('hidden');
+    input.setAttribute('aria-expanded', 'false');
+    input.removeAttribute('aria-activedescendant');
+    activeIndex = -1;
+  };
+
+  const showMessage = (message) => {
+    list.innerHTML = '';
+    const item = document.createElement('div');
+    item.className = 'px-3 py-2 text-xs text-slate-500';
+    item.setAttribute('role', 'option');
+    item.setAttribute('aria-disabled', 'true');
+    item.textContent = message;
+    list.appendChild(item);
+    list.classList.remove('hidden');
+    input.setAttribute('aria-expanded', 'true');
+  };
+
+  const renderPlaces = () => {
+    list.innerHTML = '';
+    if (!places.length) {
+      showMessage('No matching places. You can still use any destination.');
+      return;
+    }
+
+    places.forEach((place, index) => {
+      const button = document.createElement('button');
+      const label = [place.name, place.admin1, place.country]
+        .filter((value, partIndex, parts) => value && parts.indexOf(value) === partIndex)
+        .join(', ');
+      button.type = 'button';
+      button.id = `destination-option-${index}`;
+      button.className = 'w-full rounded-lg px-3 py-2 text-left hover:bg-blue-50 focus:bg-blue-50 focus:outline-none';
+      button.setAttribute('role', 'option');
+      button.setAttribute('aria-selected', index === activeIndex ? 'true' : 'false');
+      button.innerHTML = '<span class="block text-sm font-semibold text-slate-800"></span><span class="block text-xs text-slate-500"></span>';
+      button.children[0].textContent = place.name;
+      button.children[1].textContent = [place.admin1, place.country]
+        .filter((value, partIndex, parts) => value && parts.indexOf(value) === partIndex)
+        .join(', ');
+      button.addEventListener('mousedown', (event) => event.preventDefault());
+      button.addEventListener('click', () => {
+        input.value = label;
+        closeList();
+      });
+      list.appendChild(button);
+    });
+
+    list.classList.remove('hidden');
+    input.setAttribute('aria-expanded', 'true');
+  };
+
+  input.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    requestController?.abort();
+    const query = input.value.trim();
+    places = [];
+    activeIndex = -1;
+
+    if (query.length < 2) {
+      closeList();
+      return;
+    }
+
+    showMessage('Searching places worldwide...');
+    debounceTimer = setTimeout(async () => {
+      requestController = new AbortController();
+      const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=10&language=en&format=json`;
+
+      try {
+        const response = await fetch(url, { signal: requestController.signal });
+        if (!response.ok) throw new Error('Location search failed');
+        const data = await response.json();
+        const results = data.results || [];
+        places = results.filter(place => place.feature_code?.startsWith('PPL'));
+        if (!places.length) places = results;
+        renderPlaces();
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          showMessage('Suggestions unavailable. You can still use any destination.');
+        }
+      }
+    }, 300);
+  });
+
+  input.addEventListener('keydown', (event) => {
+    if (list.classList.contains('hidden') || !places.length) {
+      if (event.key === 'Escape') closeList();
+      return;
+    }
+
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      const direction = event.key === 'ArrowDown' ? 1 : -1;
+      activeIndex = activeIndex < 0
+        ? (direction === 1 ? 0 : places.length - 1)
+        : (activeIndex + direction + places.length) % places.length;
+      renderPlaces();
+      input.setAttribute('aria-activedescendant', `destination-option-${activeIndex}`);
+    } else if (event.key === 'Enter' && activeIndex >= 0) {
+      event.preventDefault();
+      list.children[activeIndex]?.click();
+    } else if (event.key === 'Escape') {
+      closeList();
+    }
+  });
+
+  input.addEventListener('blur', () => setTimeout(closeList, 120));
 }
 
 function handleGenerateTrip() {
